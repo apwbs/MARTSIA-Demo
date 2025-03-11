@@ -1,16 +1,5 @@
 # MARTSIA-Demo
 
-**Multi-Authority Approach to Transaction Systems for Interoperating Applications**  
-**** 
-
-MARTSIA is a decentralized approach for secrecy-preserving, immutable, access-controlled information exchange via public blockchain for process management. 
-In short, it resorts to Multi-Authority Ciphertext Policy Attributed Based Encryption (MA-CP-ABE) to handle the ciphering/deciphering cycle, a content-addressed Distributed Hash Table (DHT) file system (IPFS) to handle the storage of documents, and smart contracts to enforce the access grants and notarise the data flow.
-
-Several actors cooperate in a process execution within the framework: _(i)_ the **Data Owner**, who encrypts data using an MA-CP-ABE policy; _(ii)_ the **Reader**, who intends to decrypt it; _(iii)_ the **Attribute Certifier**, who assigns MA-CP-ABE attributes to the Readers;  and _(iv)_ the **Authority Network**, a set of Authorities responsible for generating segments of decryption keys for the Reader. Using these keys, the Reader can decrypt the data.
-
-In this version, the request and transmission of key segments between the Reader and Authorities are performed via **TLS connections**.
-We implemented the smart contract for this MARTSIA version in Solidity, making it EVM-compatible. 
-
 ## Wiki
 For a detailed documentation and step-by-step tutorial to run this version locally, check out the [Wiki](https://github.com/apwbs/MARTSIA-Demo/wiki).
 
