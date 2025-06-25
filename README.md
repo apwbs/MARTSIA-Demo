@@ -8,6 +8,11 @@ Below we present a step-by-step video demonstrating the local execution of this 
 
 [![Video](https://img.youtube.com/vi/RAcifWw1_B0/maxresdefault.jpg)](https://www.youtube.com/watch?v=RAcifWw1_B0)
 
+## Pitch presentation and poster
+For a pitch presentation showcased at the CAiSE Forum 2025, check out this SlideShare [link](https://www.slideshare.net/slideshow/kryston-et-al-martsia-in-2-3minutes-pptx/280989049).
+
+You can also find the poster at the following SlideShare [link](https://www.slideshare.net/slideshow/kryston-et-al-martsia-poster-caise-forum-2025-pptx/280989458).
+
 ## This repository
 In this repository you find several folders necessary to run the framework. 
 1. In the *blockchain* folder, there are all the necessary data to connect to the blockchain. For example, the smart contract code in the *contracts* folder, the JavaScript code to deploy on-chain the smart contract in the *migrations* folder, and finally the *truffle-config.js* file to connect to the blockchain via Truffle.
