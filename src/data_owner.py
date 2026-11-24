@@ -1,7 +1,10 @@
 import os
 from charm.toolbox.pairinggroup import *
 from charm.core.engine.util import objectToBytes, bytesToObject
-import cryptocode
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.backends import default_backend
 import block_int
 from decouple import config
 import ipfshttpclient
@@ -108,20 +111,49 @@ def cipher_data(groupObj, maabe, api, process_instance_id, sender_name, input_fi
     
     # Encrypt files and generate headers
     for index, (file_name, policy) in enumerate(input_policies.items()):
-        key_group = groupObj.random(GT)
-        key_encrypt = groupObj.serialize(key_group)
-        keys.append(key_encrypt)
-        key_encrypt_deser = groupObj.deserialize(key_encrypt)
-        ciphered_key = maabe.encrypt(public_parameters, pk, key_encrypt_deser, access_policy[file_name])
-        ciphered_key_bytes = objectToBytes(ciphered_key, groupObj)
-        ciphered_key_bytes_string = ciphered_key_bytes.decode('utf-8')
+        # key = AESGCM.generate_key(bit_length=128)
+        # key_group = groupObj.random(GT)
+        # print("key_group", key_group)
+        # exit()
+        # # key_encrypt = groupObj.serialize(key_group)
+        # keys.append(key)
+        # # key_encrypt_deser = groupObj.deserialize(key_encrypt)
+        # ciphered_key = maabe.encrypt(public_parameters, pk, key, access_policy[file_name])
+        # ciphered_key_bytes = objectToBytes(ciphered_key, groupObj)
+        # ciphered_key_bytes_string = ciphered_key_bytes.decode('utf-8')
         
-        # Encrypt file contents and prepare headers
-        cipher = cryptocode.encrypt(file_contents[file_name], str(keys[index]))
+        # # Encrypt file contents and prepare headers
+        # # cipher = cryptocode.encrypt(file_contents[file_name], str(keys[index]))
+        
+        # # data = b"a secret message"
+        # nonce = os.urandom(12)
+        # aesgcm = AESGCM(key)
+        # test = aesgcm.encrypt(nonce, file_contents[file_name], None)
+        # # test_decrypted = aesgcm.decrypt(nonce, test, None)
+
+        # dict_pol = {
+        #     'CipheredKey': ciphered_key_bytes_string,
+        #     'FileName': file_name,
+        #     'EncryptedFile': test,
+        #     'Nonce': nonce
+        # }
+
+
+        key_group = groupObj.random(GT)
+        keys.append(key_group)
+        ciphered_key = maabe.encrypt(public_parameters, pk, key_group, access_policy[file_name])
+        ciphered_key_bytes_string = objectToBytes(ciphered_key, groupObj).decode('utf-8')
+
+        aes_key = HKDF(algorithm=hashes.SHA256(), length=32, salt=None,
+               info=b"MARTSIA", backend=default_backend()).derive(groupObj.serialize(key_group))
+        nonce = os.urandom(12)
+        encrypted = AESGCM(aes_key).encrypt(nonce, file_contents[file_name].encode('utf-8'), None)
+
         dict_pol = {
             'CipheredKey': ciphered_key_bytes_string,
             'FileName': file_name,
-            'EncryptedFile': cipher
+            'EncryptedFile': base64.b64encode(encrypted).decode('utf-8'),
+            'Nonce': base64.b64encode(nonce).decode('utf-8'),
         }
         
         # Handle multiple policies with slice ID
