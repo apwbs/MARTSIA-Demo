@@ -1,9 +1,6 @@
 from charm.toolbox.pairinggroup import *
 from charm.core.engine.util import bytesToObject
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-from cryptography.hazmat.primitives.kdf.hkdf import HKDF
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.backends import default_backend
+import cryptocode
 import block_int
 import ipfshttpclient
 import json
@@ -82,17 +79,15 @@ def retrieve_public_parameters(process_instance_id):
 
 def actual_decryption(remaining, public_parameters, user_sk, output_folder):
     """
-    Recover the GT key with MA-ABE, derive the AES key, decrypt the file with AES-GCM
+    Perform decryption using public parameters and user secret key
     """
-    ct = bytesToObject(remaining['CipheredKey'].encode('utf-8'), groupObj)
-    key_group = maabe.decrypt(public_parameters, user_sk, ct)
-    aes_key = HKDF(algorithm=hashes.SHA256(), length=32, salt=None,
-                   info=b"MARTSIA", backend=default_backend()).derive(groupObj.serialize(key_group))
-    decrypted_file = AESGCM(aes_key).decrypt(base64.b64decode(remaining['Nonce']),
-                                             base64.b64decode(remaining['EncryptedFile']),
-                                             None).decode('utf-8')
+    test = remaining['CipheredKey'].encode('utf-8')
+    ct = bytesToObject(test, groupObj)
+    v2 = maabe.decrypt(public_parameters, user_sk, ct)
+    v2 = groupObj.serialize(v2)
     output_folder_path = os.path.abspath(output_folder)
-    base64_to_file(decrypted_file, os.path.join(output_folder_path, remaining['FileName']))
+    decryptedFile = cryptocode.decrypt(remaining['EncryptedFile'], str(v2))
+    base64_to_file(decryptedFile, output_folder_path+"/"+remaining['FileName'])
 
 
 def start(process_instance_id, message_id, slice_id, sender_address, output_folder, merged):
